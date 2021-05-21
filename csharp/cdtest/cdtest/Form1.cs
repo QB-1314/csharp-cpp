@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace cdtest
 {
@@ -17,9 +18,34 @@ namespace cdtest
             InitializeComponent();
         }
 
+        public string openDataFile()
+        {
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            string a = "";
+
+            openFileDialog1.InitialDirectory = "..";
+            openFileDialog1.Filter = "txt files (*.*)|*.txt|All files (*.*)|*.*";
+            openFileDialog1.FilterIndex = 2;
+            openFileDialog1.RestoreDirectory = true;
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    a = openFileDialog1.FileName;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error al seleccionar archivo: " + ex.Message);
+                }
+            }
+            return a;
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
-            string str = @"E:\csharp-cpp\cpp\ab-test\Debug\ab-test.exe E:\csharp-cpp\cpp\ab-test\ab-test\abplus.h";
+            string filename = this.openDataFile();
+            string str = @"E:\csharp-cpp\cpp\ab-test\Debug\ab-test.exe " + "\"" + filename + "\"";
 
             System.Diagnostics.Process p = new System.Diagnostics.Process();
             p.StartInfo.FileName = "cmd.exe";
@@ -43,7 +69,14 @@ namespace cdtest
             //获取cmd窗口的输出信息
             string output = p.StandardOutput.ReadToEnd();
 
-            this.richTextBox1.Text = output;
+            //char[] aaa = { '\\', 'r', '\\', 'n' };
+            string[] mutliLine = Regex.Split(output, @"\r\n");
+            for(int i = 4; i < mutliLine.Length; i++)
+            {
+                this.richTextBox1.Text += mutliLine[i] + "\r\n";
+            }
+
+            //this.richTextBox1.Text = output;
             //StreamReader reader = p.StandardOutput;
             //string line=reader.ReadLine();
             //while (!reader.EndOfStream)
